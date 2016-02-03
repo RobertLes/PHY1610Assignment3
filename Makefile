@@ -9,7 +9,7 @@ LDLIBS= -lgsl -lgslcblas
 all: ants
 
 ants: antsDriver.o antsUpdate.o antsInit.o antsOutput.o
-	${CPP} -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o 
+	${CPP} -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o ticktock.o
 
 antsDriver.o: antsDriver.cc antsDriver.h antsUpdate.h antsInit.h antsOutput.h
 	${CPP} ${CPPFLAGS} -c -o antsDriver.o antsDriver.cc
@@ -23,8 +23,13 @@ antsInit.o: antsInit.cc antsInit.h antsDriver.h
 antsOuput.o: antsOutput.cc antsOutput.h antsDriver.h
 	${CPP} ${CPPFLAGS} -c -o antsOutput.o antsOutput.cc
 
-original:
-	${CPP} -o antsOriginal ants.cc
+
+original: antsOriginal.o
+	${CPP} ${CPPFLAGS} -o  antsOriginal antsOriginal.o ticktock.o
+
+antsOriginal.o: ants.cc
+	${CPP} -o antsOriginal.o -c ants.cc
+
 
 gprofModular:  
 	${CPP} ${CPPFLAGS} -pg -g -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o

@@ -12,6 +12,7 @@
 #include <cmath>
 #include <rarray>
 #include <iostream>
+#include "ticktock.h"
 
 //include other modules of program
 #include "antsOutput.h"

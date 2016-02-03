@@ -1,7 +1,13 @@
 #include <cmath>
 #include <iostream>
+#include "ticktock.h"
+
 int main()
 {
+    //first stopwatch
+    TickTock stopwatch;
+    stopwatch.tick();
+
     // ants walk on a table
     float number_of_ants[356][356];
     float new_number_of_ants[356][356];
@@ -31,6 +37,15 @@ int main()
             }
         }
     }
+    
+    double initTime=stopwatch.silent_tock();
+
+    
+    //second stopwatch to calculate one update time
+    TickTock stopwatch2;
+    double updateTime=-1.0;
+
+    stopwatch.tick();
     // run simulation
     for (int t = 0; t < 40; t++) {
         float totants = 0.0;
@@ -45,7 +60,9 @@ int main()
                 new_number_of_ants[i][j] = 0.0;
             }
         }
-        for (int i=0;i<356;i++) {
+	if (t==0)
+	    stopwatch2.tick();
+	for (int i=0;i<356;i++) {
             for (int j=0;j<356;j++) {
                 int di = 1.9*sin(velocity_of_ants[i][j]);
                 int dj = 1.9*cos(velocity_of_ants[i][j]);
@@ -65,7 +82,15 @@ int main()
                 totants += number_of_ants[i][j];
             }
         }
+	if(t==0)
+            updateTime=stopwatch2.silent_tock();
     }
+    double loopTime=stopwatch.silent_tock();
+    
+    std::cout<< "Timing Results" <<std::endl;
+    std::cout<< "Time to Initialize array:\t"<< initTime <<std::endl;
+    std::cout<< "Time to do first update:\t"<<updateTime<<std::endl;
+    std::cout<< "Time to finish all looping:\t"<<loopTime<<std::endl;
     return 0;
 }             
  
