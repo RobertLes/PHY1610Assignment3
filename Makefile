@@ -23,5 +23,11 @@ antsInit.o: antsInit.cc antsInit.h antsDriver.h
 antsOuput.o: antsOutput.cc antsOutput.h antsDriver.h
 	${CPP} ${CPPFLAGS} -c -o antsOutput.o antsOutput.cc
 
+original:
+	${CPP} -o antsOriginal ants.cc
+
+test:
+	${CPP} -o test BoostTest.cc 
+
 clean:
-	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o ants
+	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o antsOriginal ants test

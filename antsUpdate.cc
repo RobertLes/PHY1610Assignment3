@@ -24,7 +24,7 @@ rarray<float,2> findNewArray(int table_dim_x, int table_dim_y,rarray<float,2> nu
                 new_number_of_ants[i][j]+=0.8*number_of_ants[i][j];
                 
 		// the rest of the ants walk, but some fall of the table
-                if (i2>0 and i2>=table_dim_x and j2<0 and j2>=table_dim_y) {
+                if (i2>=0 and i2<table_dim_x and j2>=0 and j2<table_dim_y) {
                     new_number_of_ants[i2][j2]+=0.2*number_of_ants[i][j];
                 }
             }
