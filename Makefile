@@ -37,8 +37,9 @@ gprofModular:
 gprofOriginal: ants.cc
 	${CPP} ${CPPFALGS} -pg -g -o antsOriginal ants.cc
 
+
 test:
-	${CPP} -o test BoostTest.cc 
+	${CPP} -o test BoostTestingUnit.cc 
 
 clean:
 	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o antsOriginal ants test gmon.out
