@@ -2,7 +2,7 @@
 CPP = g++
 
 #Compiler and linker flags
-CPPFLAGS= -I${GSLINC} -O2 -std=c++11
+CPPFLAGS= -I${GSLINC} -O2 -std=c++11 -Wall
 LDFLAGS= -L${GSLINC}
 LDLIBS= -lgsl -lgslcblas
 
@@ -26,8 +26,14 @@ antsOuput.o: antsOutput.cc antsOutput.h antsDriver.h
 original:
 	${CPP} -o antsOriginal ants.cc
 
+gprofModular:  
+	${CPP} ${CPPFLAGS} -pg -g -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o
+
+gprofOriginal: ants.cc
+	${CPP} ${CPPFALGS} -pg -g -o antsOriginal ants.cc
+
 test:
 	${CPP} -o test BoostTest.cc 
 
 clean:
-	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o antsOriginal ants test
+	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o antsOriginal ants test gmon.out
