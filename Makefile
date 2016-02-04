@@ -4,9 +4,8 @@ CPP = g++
 #Compiler and linker flags
 CPPFLAGS= -I${GSLINC} -O2 -std=c++11 -Wall
 LDFLAGS= -L${GSLINC}
-LDLIBS= -lgsl -lgslcblas
 
-all: ants
+all: original ants
 
 ants: antsDriver.o antsUpdate.o antsInit.o antsOutput.o
 	${CPP} -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o ticktock.o
@@ -23,23 +22,20 @@ antsInit.o: antsInit.cc antsInit.h antsDriver.h
 antsOuput.o: antsOutput.cc antsOutput.h antsDriver.h
 	${CPP} ${CPPFLAGS} -c -o antsOutput.o antsOutput.cc
 
-
 original: antsOriginal.o
 	${CPP} ${CPPFLAGS} -o  antsOriginal antsOriginal.o ticktock.o
 
 antsOriginal.o: ants.cc
-	${CPP} -o antsOriginal.o -c ants.cc
+	${CPP} ${CPPFLAGS} -o antsOriginal.o -c ants.cc
 
+gprofModular: antsInit.o antsUpdate.o antsOutput.o antsDriver.o
+	${CPP} -pg -g -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o ticktock.o
 
-gprofModular:  
-	${CPP} ${CPPFLAGS} -pg -g -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o
+gprofOriginal: antsOriginal.o 
+	${CPP} -pg -g  -o antsOriginal antsOriginal.o ticktock.o
 
-gprofOriginal: ants.cc
-	${CPP} ${CPPFALGS} -pg -g -o antsOriginal ants.cc
-
-
-test:
-	${CPP} -o test BoostTestingUnit.cc 
+test: BoostTestingUnit.cc
+	${CPP} -o test BoostTestingUnit.cc
 
 clean:
-	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o antsOriginal ants test gmon.out
+	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o antsOriginal ants test gmon.out antsoriginal.o BoostTestingUnit.o
