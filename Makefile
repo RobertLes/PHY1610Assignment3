@@ -2,40 +2,62 @@
 CPP = g++
 
 #Compiler and linker flags
-CPPFLAGS= -I${GSLINC} -O2 -std=c++11 -Wall
+CPPFLAGS= -O2 -g -std=c++11 -Wall
+DEBUG= -g -pg -std=c++11 -Wall
 LDFLAGS= -L${GSLINC}
 
-all: original ants
+all: original ants test
 
+#Modularized code
 ants: antsDriver.o antsUpdate.o antsInit.o antsOutput.o
-	${CPP} -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o ticktock.o
+	${CPP} $(CPPFLAGS) -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o ticktock.o
 
 antsDriver.o: antsDriver.cc antsDriver.h antsUpdate.h antsInit.h antsOutput.h
-	${CPP} ${CPPFLAGS} -c -o antsDriver.o antsDriver.cc
+	${CPP} $(CPPFLAGS) -c -o antsDriver.o antsDriver.cc
 
 antsUpdate.o: antsUpdate.cc antsUpdate.h antsDriver.h
-	${CPP} ${CPPFLAGS} -c -o antsUpdate.o antsUpdate.cc
+	${CPP} $(CPPFLAGS) -c -o antsUpdate.o antsUpdate.cc
 
 antsInit.o: antsInit.cc antsInit.h antsDriver.h
-	${CPP} ${CPPFLAGS} -c -o antsInit.o antsInit.cc
+	${CPP} $(CPPFLAGS) -c -o antsInit.o antsInit.cc
 
-antsOuput.o: antsOutput.cc antsOutput.h antsDriver.h
-	${CPP} ${CPPFLAGS} -c -o antsOutput.o antsOutput.cc
+antsOutput.o: antsOutput.cc antsOutput.h antsDriver.h
+	${CPP} $(CPPFLAGS) -c -o antsOutput.o antsOutput.cc
 
+#Original code
 original: antsOriginal.o
 	${CPP} ${CPPFLAGS} -o  antsOriginal antsOriginal.o ticktock.o
 
 antsOriginal.o: ants.cc
 	${CPP} ${CPPFLAGS} -o antsOriginal.o -c ants.cc
 
-gprofModular: antsInit.o antsUpdate.o antsOutput.o antsDriver.o
-	${CPP} -pg -g -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o ticktock.o
+#Profiling compilation
+debug: gants goriginal
 
-gprofOriginal: antsOriginal.o 
-	${CPP} -pg -g  -o antsOriginal antsOriginal.o ticktock.o
+gants: gantsDriver.o gantsUpdate.o gantsInit.o gantsOutput.o
+	${CPP} $(DEBUG) -o antsDebug antsInit.o antsUpdate.o antsOutput.o antsDriver.o ticktock.o
 
-test: BoostTestingUnit.cc
-	${CPP} -o test BoostTestingUnit.cc
+gantsDriver.o: antsDriver.cc antsDriver.h antsUpdate.h antsInit.h antsOutput.h
+	${CPP} $(DEBUG) -c -o antsDriver.o antsDriver.cc
+
+gantsUpdate.o: antsUpdate.cc antsUpdate.h antsDriver.h
+	${CPP} $(DEBUG) -c -o antsUpdate.o antsUpdate.cc
+
+gantsInit.o: antsInit.cc antsInit.h antsDriver.h
+	${CPP} $(DEBUG) -c -o antsInit.o antsInit.cc
+
+gantsOutput.o: antsOutput.cc antsOutput.h antsDriver.h
+	${CPP} $(DEBUG) -c -o antsOutput.o antsOutput.cc
+
+goriginal: gantsOriginal.o
+	${CPP} ${DEBUG} -o antsOriginalDebug antsOriginal.o ticktock.o
+
+gantsOriginal.o: ants.cc
+	${CPP} ${DEBUG} -o antsOriginal.o -c ants.cc
+
+#Other
+test: BoostTestingUnit.cc antsUpdate.o
+	${CPP} -o test BoostTestingUnit.cc antsUpdate.o
 
 clean:
-	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o antsOriginal ants test gmon.out antsoriginal.o BoostTestingUnit.o
+	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o antsOriginal ants test gmon.out antsoriginal.o BoostTestingUnit.o antsOriginal.o
