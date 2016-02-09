@@ -1,0 +1,130 @@
+#Report on profiling, Robert Les
+
+--- Methodolgy and commands ---
+
+Report comparing the the profiling results between the original ants.cc code
+with the modularized code.
+
+Two executables, ./ants (modularized) and ./antsOriginal (Monolithic code) codes compiled with command:
+$ make
+
+
+Instrumenting was done using ticktock clocks inside the code. Clocks were used
+to time the length of intialization, the length of time to do the first update
+of the loop, and the time to do the whole looping. Instrumenting is done by
+just running exectutables:
+$ ./ants
+and
+$ ./antsOriginal
+
+
+The time command was also used for profiling. THis shows the total code time,
+the time used by the runnign of the code itself, and the I/O and other times
+related to system. Time commands ran using:
+$ time ./ants
+and
+$ time ./antsOriginal
+
+
+Profiling was also done using gprof. Code must be recompiled with the
+appropriate flags using command:
+$ make debug
+Before running gprof we need to run the code to get gmon files:
+$ ./antsDebug
+and
+$ ./antsOriginalDebug
+Than finally look at results with gprof command:
+$ gprof ./antsDebug gmon.out
+and
+$ gprof ./antsOriginal gmon.out
+
+
+--- Modularized Code ---
+
+Instrumenting Timing Results
+Time to Initialize array:	0.013374
+Time to do first update:	0.00816856
+Time to finish all looping:	0.333151
+
+
+time command:
+real    0m0.351s
+user    0m0.339s
+sys     0m0.010s
+
+
+gprof highlights:
+
+- regular output, top 3 functions
+ %   cumulative   self              self     total           
+time   seconds   seconds    calls  ms/call  ms/call  name    
+ 60.83      0.31     0.31       40     7.76    11.76  findNewArray(int, int, ra::rarray<float, 2>, ra::rarray<float, 2>)
+ 13.73      0.38     0.07       40     1.75     4.00  ra::rarray<float, 2>::fill(float const&)
+  7.85      0.42     0.04       40     1.00     1.00  outputPerStep(int, int, int, ra::rarray<float, 2>)
+
+- line-by-line outut, top 5 lines
+ %   cumulative   self              self     total           
+time   seconds   seconds    calls  ms/call  ms/call  name    
+ 13.73      0.07     0.07                             findNewArray(int, int, ra::rarray<float, 2>, ra::rarray<float, 2>) (antsUpdate.cc:28 @ 40191e)
+ 11.77      0.13     0.06                             ra::rarray<float, 2>::fill(float const&) (rarray:1298 @ 401bbe)
+  7.85      0.17     0.04       40     1.00     1.00  outputPerStep(int, int, int, ra::rarray<float, 2>)
+  7.85      0.21     0.04                             findNewArray(int, int, ra::rarray<float, 2>, ra::rarray<float, 2>) (antsUpdate.cc:18 @ 401467)
+  7.85      0.25     0.04                             findNewArray(int, int, ra::rarray<float, 2>, ra::rarray<float, 2>) (antsUpdate.cc:19 @ 401536)
+
+Bottlenecks and suggestions:
+As can be seen by the instrumenting the bottleneck in the modularized code is 
+the updating step defined in the function findNewArray. Instrumenting shows that
+the time to do one update is around 0.08 seconds. This is done 40 times so 
+40*0.008=0.32 seconds, which is majority of the time used by the code as shown 
+by instrumenting and the time command. Gprof results support this as well. 
+Gprof also shows which lines of the findNewArray take the most time. In 
+particular, the line which took the most compuation time is line 28 of the 
+antsUpdate.cc code which is the line where the updated temporary array is 
+copied into the desired array. This step is an unavoidable and not unexpected 
+bottleneck. Similarly the 2nd and 3rd most time consuming lines come from the 
+intialization of arrays by rarray and the output step. The output step may be 
+quickened by outputing as binary but this may be somewhat redundant for such a 
+small code. The frequenet calls to rarray may also be reduced by removing the 
+intialization of temporary rarrays each loop by the findNewArray function and 
+simiply having one temporary array intialized in the beginning which is updated.
+The 4th and 5th most time consuming lines as shwon by gprof are the
+lines in findNewArray command where the numerical step size of the ant 
+displacement is calculted. These lines can be significantly improved because the
+velocity_of_ants array is constant after intialization, hence the 
+displacements are also a constant array that doesn't need to be looped over and
+recalculated each step. Thus improvement can be made by putting these steps 
+into the intialization step and feeding them as additional variables into the 
+the findNewArray function.
+
+
+--- Monolothic Code ---
+
+Instrumenting Timing Results:
+Time to Initialize array:       0.0135684
+Time to do first update:        0.00816937
+Time to finish all looping:     0.337618
+
+
+time command:
+real    0m0.354s
+user    0m0.351s
+sys     0m0.002s
+
+
+gprof highlights:
+- regular output, top 3 lines
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  Ts/call  Ts/call  name    
+ 96.93      0.15     0.15                             main
+  0.00      0.15     0.00        1     0.00     0.00  _GLOBAL__sub_I_main
+  0.00      0.15     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+
+Bottlenecks and suggestions:
+As can be seen by the time command and instrumenting, the elapsed time of the 
+original monolithic code is roughly identical. The I/O and unnecessary 
+recalculation of displacement interval bottlnecks of the modularized code are 
+here as well and can be corrected similary. When running locally, as apposed to 
+SciNet, it is also more evident by the instrumenting that the intialization step
+takes longer in the monolthic code then the modularized code. This intialization
+bottleneck in the monolithic code then can be improved by changing the static 
+arrays to rarrays.

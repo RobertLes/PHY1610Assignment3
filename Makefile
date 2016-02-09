@@ -6,10 +6,10 @@ CPPFLAGS= -O2 -g -std=c++11 -Wall
 DEBUG= -g -pg -std=c++11 -Wall
 LDFLAGS= -L${GSLINC}
 
-all: original ants test
+all: original ants 
 
 #Modularized code
-ants: antsDriver.o antsUpdate.o antsInit.o antsOutput.o
+ants: antsDriver.o antsUpdate.o antsInit.o antsOutput.o ticktock.o
 	${CPP} $(CPPFLAGS) -o ants antsInit.o antsUpdate.o antsOutput.o antsDriver.o ticktock.o
 
 antsDriver.o: antsDriver.cc antsDriver.h antsUpdate.h antsInit.h antsOutput.h
@@ -25,7 +25,7 @@ antsOutput.o: antsOutput.cc antsOutput.h antsDriver.h
 	${CPP} $(CPPFLAGS) -c -o antsOutput.o antsOutput.cc
 
 #Original code
-original: antsOriginal.o
+original: antsOriginal.o ticktock.o
 	${CPP} ${CPPFLAGS} -o  antsOriginal antsOriginal.o ticktock.o
 
 antsOriginal.o: ants.cc
@@ -34,7 +34,7 @@ antsOriginal.o: ants.cc
 #Profiling compilation
 debug: gants goriginal
 
-gants: gantsDriver.o gantsUpdate.o gantsInit.o gantsOutput.o
+gants: gantsDriver.o gantsUpdate.o gantsInit.o gantsOutput.o ticktock.o
 	${CPP} $(DEBUG) -o antsDebug antsInit.o antsUpdate.o antsOutput.o antsDriver.o ticktock.o
 
 gantsDriver.o: antsDriver.cc antsDriver.h antsUpdate.h antsInit.h antsOutput.h
@@ -49,7 +49,7 @@ gantsInit.o: antsInit.cc antsInit.h antsDriver.h
 gantsOutput.o: antsOutput.cc antsOutput.h antsDriver.h
 	${CPP} $(DEBUG) -c -o antsOutput.o antsOutput.cc
 
-goriginal: gantsOriginal.o
+goriginal: gantsOriginal.o ticktock.o
 	${CPP} ${DEBUG} -o antsOriginalDebug antsOriginal.o ticktock.o
 
 gantsOriginal.o: ants.cc
@@ -59,5 +59,8 @@ gantsOriginal.o: ants.cc
 test: BoostTestingUnit.cc antsUpdate.o
 	${CPP} -o test BoostTestingUnit.cc antsUpdate.o
 
+ticktock.o: ticktock.cc ticktock.h
+	${CPP} $(CPPFLAGS) -o ticktock.o -c ticktock.cc
+
 clean:
-	rm -f antsDriver.o antsInit.o antsUpdate.o antsOutput.o antsOriginal ants test gmon.out antsoriginal.o BoostTestingUnit.o antsOriginal.o
+	rm -f *.o antsOriginal ants test gmon.out antsOriginalDebug antsDebug
